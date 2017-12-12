@@ -233,9 +233,9 @@ else if res
     else if mul
             multiplicar(grafica_x_n,grafica_y_n,centro_x,centro_y,handles);
         else if amp
-                amplificar(grafica_x_n,handles);
+                amplificar(grafica_x_n,centro_x,handles);
             else if ate
-                    atenuar(grafica_x_n,handles);
+                    atenuar(grafica_x_n,centro_x,handles);
                 else if des
                        desplazar(grafica_x_n,centro_x,handles); 
                     else if die
@@ -430,14 +430,59 @@ grid on
 
 % Funcion de la operacion amplificar
 function amplificar(x_n,centro_x,handles)
-
+k = str2num(get(handles.valor_k_edit,'String'));
+for i=1:length(x_n(:,1))
+    x_n(i,2) = x_n(i,2)*k;
+end
+% Graficamos en la GUI
+stem(handles.resultado_axes,x_n(:,1),x_n(:,2));
+set(handles.resultado_axes,'XMinorTick','on');
+grid on
 
 % Funcion de la operacion atenuar
 function atenuar(x_n,centro_x,handles)
-
+k = str2num(get(handles.valor_k_edit,'String'));
+for i=1:length(x_n(:,1))
+    x_n(i,2) = x_n(i,2)/k;
+end
+% Graficamos en la GUI
+stem(handles.resultado_axes,x_n(:,1),x_n(:,2));
+set(handles.resultado_axes,'XMinorTick','on');
+grid on
 
 % Funcion de la operacion desplazar
 function desplazar(x_n,centro_x,handles)
+t0 = str2num(get(handles.valor_k_edit,'String'));
+x_n_desp = cell(1,1);
+if t0 ~= 0
+    if t0 > 0
+        if t0 > centro-1
+            diferencia = t0-centro-1;
+            x_n = [zeros(diferencia,2);x_n];
+            x_n(1:(length(x_n(:,1)-diferencia)),1) = x_n(diferencia:length(x_n(:,1)),1);
+            for i=(length(x_n(:,1)-diferencia))+1:length(x_n)
+                x_n(i) = x_n(1:(length(x_n(:,1)-diferencia)),1)+1;
+            end
+            x_n_desp{1} = x_n;
+        else
+            x_n(1:length(x_n(:,1))-t0,1) = x_n(t0:length(x_n(:,1)),1);
+            x_n_desp{1} = x_n(1:length(x_n(:,1))-t0,1:length(x_n(:,1))-t0);
+        end
+    else
+        if abs(t0) > length(x_n(:,1))-centro-1
+            diferencia = abs(t0)-length(x_n(:,1))-centro-1;
+            x_n = [x_n];
+            x_n(1:(length(x_n(:,1)-diferencia)),1) = x_n(diferencia:length(x_n(:,1)),1);
+            for i=(length(x_n(:,1)-diferencia))+1:length(x_n)
+                x_n(i) = x_n(1:(length(x_n(:,1)-diferencia)),1)+1;
+            end
+            x_n_desp{1} = x_n;
+        else
+            x_n(1:length(x_n(:,1))-t0,1) = x_n(t0:length(x_n(:,1)),1);
+            x_n_desp{1} = x_n(1:length(x_n(:,1))-t0,1:length(x_n(:,1))-t0);
+        end
+    end
+end
 
 function valor = buscarValor(x,x_n)
 for i=1:length(x_n(:,1))
