@@ -22,7 +22,7 @@ function varargout = ProyectoTDCyS(varargin)
 
 % Edit the above text to modify the response to help ProyectoTDCyS
 
-% Last Modified by GUIDE v2.5 11-Dec-2017 22:59:04
+% Last Modified by GUIDE v2.5 12-Dec-2017 10:04:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,7 +60,6 @@ guidata(hObject, handles);
 
 % UIWAIT makes ProyectoTDCyS wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = ProyectoTDCyS_OutputFcn(hObject, eventdata, handles) 
@@ -134,7 +133,7 @@ grafica_y_n = cell2mat(valoresGrafica);
 assignin ('base','grafica_y_n',grafica_y_n);
 assignin ('base','centro_y',centro_y);
 % Graficamos en la GUI
-stem(handles.y_n_axes,grafica_y_n(:,1),grafica_y_n(:,2));
+stem(handles.y_n_axes,grafica_y_n(:,1),grafica_y_n(:,2),'Color',[1 0 0]);
 set(handles.y_n_axes,'XMinorTick','on');
 grid on
 
@@ -199,7 +198,7 @@ grafica_x_n = cell2mat(valoresGrafica);
 assignin ('base','grafica_x_n',grafica_x_n);
 assignin ('base','centro_x',centro_x);
 % Graficamos en la GUI
-stem(handles.x_n_axes,grafica_x_n(:,1),grafica_x_n(:,2));
+stem(handles.x_n_axes,grafica_x_n(:,1),grafica_x_n(:,2),'Color',[0 1 0]);
 set(handles.x_n_axes,'XMinorTick','on');
 grid on
 
@@ -312,7 +311,7 @@ end
 resmat = cell2mat(resultadosValores);
 
 % Graficamos en la GUI
-stem(handles.resultado_axes,resmat(:,1),resmat(:,2));
+stem(handles.resultado_axes,resmat(:,1),resmat(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -368,7 +367,7 @@ end
 resmat = cell2mat(resultadosValores);
 
 % Graficamos en la GUI
-stem(handles.resultado_axes,resmat(:,1),resmat(:,2));
+stem(handles.resultado_axes,resmat(:,1),resmat(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -424,7 +423,7 @@ end
 resmat = cell2mat(resultadosValores);
 
 % Graficamos en la GUI
-stem(handles.resultado_axes,resmat(:,1),resmat(:,2));
+stem(handles.resultado_axes,resmat(:,1),resmat(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -435,7 +434,7 @@ for i=1:length(x_n(:,1))
     x_n(i,2) = x_n(i,2)*k;
 end
 % Graficamos en la GUI
-stem(handles.resultado_axes,x_n(:,1),x_n(:,2));
+stem(handles.resultado_axes,x_n(:,1),x_n(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -446,43 +445,64 @@ for i=1:length(x_n(:,1))
     x_n(i,2) = x_n(i,2)/k;
 end
 % Graficamos en la GUI
-stem(handles.resultado_axes,x_n(:,1),x_n(:,2));
+stem(handles.resultado_axes,x_n(:,1),x_n(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
 % Funcion de la operacion desplazar
 function desplazar(x_n,centro_x,handles)
-t0 = str2num(get(handles.valor_k_edit,'String'));
+t = str2num(get(handles.valor_k_edit,'String'));
 x_n_desp = cell(1,1);
-if t0 ~= 0
-    if t0 > 0
-        if t0 > centro-1
-            diferencia = t0-centro-1;
-            x_n = [zeros(diferencia,2);x_n];
-            x_n(1:(length(x_n(:,1)-diferencia)),1) = x_n(diferencia:length(x_n(:,1)),1);
-            for i=(length(x_n(:,1)-diferencia))+1:length(x_n)
-                x_n(i) = x_n(1:(length(x_n(:,1)-diferencia)),1)+1;
+
+if t~=0
+    % Si se desplaza hacia la izquierda
+    if t>0
+        % Si hay que agregar elementos
+        if t > centro_x - 1
+            diferencia = t-(centro_x-1);
+            sup = x_n(1,1);
+            assignin('base','diferencia',diferencia);
+            if diferencia == 1.0
+                resto = zeros(1,2);
+                resto(1,1) = sup-1;
+            else
+                posiciones = (sup-diferencia):1:(sup-1);
+                resto = zeros(diferencia,2);
+                resto(:,1) = posiciones';
             end
-            x_n_desp{1} = x_n;
+            x_n = [resto;x_n];
+            x_n(:,1) = x_n(:,1)+t;
+        % Si no hay que agregar
         else
-            x_n(1:length(x_n(:,1))-t0,1) = x_n(t0:length(x_n(:,1)),1);
-            x_n_desp{1} = x_n(1:length(x_n(:,1))-t0,1:length(x_n(:,1))-t0);
+            x_n(:,1) = x_n(:,1)+t;
         end
     else
-        if abs(t0) > length(x_n(:,1))-centro-1
-            diferencia = abs(t0)-length(x_n(:,1))-centro-1;
-            x_n = [x_n];
-            x_n(1:(length(x_n(:,1)-diferencia)),1) = x_n(diferencia:length(x_n(:,1)),1);
-            for i=(length(x_n(:,1)-diferencia))+1:length(x_n)
-                x_n(i) = x_n(1:(length(x_n(:,1)-diferencia)),1)+1;
+        % Si hay que agregar elementos
+        if abs(t) > length(x_n)-centro_x
+            diferencia = abs(t)-(length(x_n)-centro_x);
+            sup = x_n(length(x_n),1);
+            assignin('base','diferencia',diferencia);
+            if diferencia == 1.0
+                resto = zeros(1,2);
+                resto(1,1) = sup+1;
+            else
+                posiciones = (sup+1):1:(sup+diferencia);
+                resto = zeros(diferencia,2);
+                resto(:,1) = posiciones';
             end
-            x_n_desp{1} = x_n;
+            x_n = [x_n;resto];
+            x_n(:,1) = x_n(:,1)+t;
+        % Si no hay que agregar
         else
-            x_n(1:length(x_n(:,1))-t0,1) = x_n(t0:length(x_n(:,1)),1);
-            x_n_desp{1} = x_n(1:length(x_n(:,1))-t0,1:length(x_n(:,1))-t0);
+            x_n(:,1) = x_n(:,1)+t;
         end
     end
 end
+
+% Graficamos en la GUI
+stem(handles.resultado_axes,x_n(:,1),x_n(:,2),'Color',[1 0 1]);
+set(handles.resultado_axes,'XMinorTick','on');
+grid on
 
 function valor = buscarValor(x,x_n)
 for i=1:length(x_n(:,1))
@@ -520,7 +540,7 @@ for i=1:length(x_n(:,1))
 end
 res_grafica = cell2mat(res);
 % Graficamos en la GUI
-stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2));
+stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -562,7 +582,7 @@ for j=1:k-1
 end
 res_grafica = cell2mat(res);
 % Graficamos en la GUI
-stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2));
+stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -598,7 +618,7 @@ for j=1:k-1
 end
 res_grafica = cell2mat(res);
 % Graficamos en la GUI
-stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2));
+stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
@@ -633,14 +653,14 @@ for j=1:k-1
 end
 res_grafica = cell2mat(res);
 % Graficamos en la GUI
-stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2));
+stem(handles.resultado_axes,res_grafica(:,1),res_grafica(:,2),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
 % Funcion de la operacion reflejo
 function reflejar(x_n,centro_x,handles)
 % Graficamos en la GUI
-stem(handles.resultado_axes,x_n(:,1)',fliplr(x_n(:,2)'));
+stem(handles.resultado_axes,x_n(:,1)',fliplr(x_n(:,2)'),'Color',[1 0 1]);
 set(handles.resultado_axes,'XMinorTick','on');
 grid on
 
